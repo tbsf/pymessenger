@@ -1,17 +1,22 @@
 import json
 import requests
 from requests_toolbelt import MultipartEncoder
+from pymessenger.utils import generate_appsecret_proof
 
 DEFAULT_API_VERSION = 2.6
 
 class SendApiClient(object):
-    def __init__(self, access_token, api_version=DEFAULT_API_VERSION):
+    def __init__(self, access_token, api_version=DEFAULT_API_VERSION, app_secret=None):
         self.api_version = api_version
         self.access_token = access_token
         self.base_url = (
             "https://graph.facebook.com"
             "/v{0}/me/messages?access_token={1}"
         ).format(self.api_version, access_token)
+
+        if app_secret is not None:
+            appsecret_proof = generate_appsecret_proof(access_token, app_secret)
+            self.base_url += '&appsecret_proof={0}'.format(appsecret_proof)
 
     def send(self, recipient_id, message_type, **kwargs):
         if message_type == 'text':
@@ -21,9 +26,11 @@ class SendApiClient(object):
             message_text = kwargs['text']
             buttons = kwargs['buttons']
             response = self.send_button_message(recipient_id, message_text, buttons)
+        elif message_type == 'image_url':
+            image_url = kwargs['image_url']
+            response = self.send_image_url(recipient_id, image_url)
         else:
             response = "Message type {0} currently unsupported.".format(message_type)
-
         return response
 
     def send_text_message(self, recipient_id, message_text):
@@ -82,6 +89,7 @@ class SendApiClient(object):
         return self._send_payload(payload)
 
     def _send_payload(self, payload):
+        print "SENDING REQUEST PAYLOAD", payload, " TO ", self.base_url
         result = requests.post(self.base_url, json=payload).json()
         return result
 
