@@ -97,7 +97,7 @@ class Bot(FacebookGraphApi):
         multipart_header = {
             'Content-Type': multipart_data.content_type
         }
-        return requests.post(self.base_url, data=multipart_data, headers=multipart_header).json()
+        return requests.post(self.base_url, data=multipart_data, headers=multipart_header, **self.request_kwargs).json()
 
     def send_image_url(self, recipient_id, image_url):
         ''' Sends an image to specified recipient using URL.
@@ -132,7 +132,8 @@ class Bot(FacebookGraphApi):
         response = requests.post(
             request_endpoint,
             params=self.auth_args,
-            json=payload
+            json=payload,
+            **self.request_kwargs
         )
         result = response.json()
         return result
