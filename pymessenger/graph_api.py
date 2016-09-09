@@ -3,7 +3,7 @@ import pymessenger.utils as utils
 DEFAULT_API_VERSION = 2.6
 
 class FacebookGraphApi(object):
-    def __init__(self, access_token, request_kwargs={}, **kwargs):
+    def __init__(self, access_token, request_kwargs=None, **kwargs):
         '''
             @required:
                 access_token
@@ -16,6 +16,8 @@ class FacebookGraphApi(object):
         self.app_secret = kwargs.get('app_secret')
         self.graph_url = 'https://graph.facebook.com/v{0}'.format(self.api_version)
         self.access_token = access_token
+        if request_kwargs is None:
+            request_kwargs = {}
         self.request_kwargs = request_kwargs
 
     @property
